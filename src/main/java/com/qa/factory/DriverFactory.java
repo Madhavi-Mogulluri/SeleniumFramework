@@ -1,0 +1,114 @@
+package com.qa.factory;
+
+import com.qa.exceptions.BrowserException;
+import com.qa.exceptions.FrameworkException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.safari.SafariDriver;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Properties;
+
+public class DriverFactory {
+
+    WebDriver driver;
+    Properties prop;
+    OptionsManager optionsManager;
+    public static String highlight;
+
+    public WebDriver initializeDriver(Properties prop){
+
+        String browserName = prop.getProperty("browser");
+        System.out.println("Browser name " + browserName);
+        optionsManager = new OptionsManager(prop);
+        highlight = prop.getProperty("highlight");
+        switch (browserName.trim().toLowerCase()){
+
+            case "chrome" :
+                driver = new ChromeDriver(optionsManager.chromeOptions());
+                break;
+            case "edge" :
+                driver = new EdgeDriver(optionsManager.edgeOptions());
+                break;
+            case "firefox" :
+                driver = new FirefoxDriver(optionsManager.firefoxOptions());
+                break;
+            case "safari" :
+                driver = new SafariDriver();
+                break;
+            default :
+            System.out.println("Please pass the right browser name " + browserName);
+              throw new BrowserException("invalid browser" + browserName);
+
+        }
+        driver.get(prop.getProperty("url"));
+        driver.manage().window().maximize();
+        driver.manage().deleteAllCookies();
+        return driver;
+
+    }
+
+    /**
+     * This method will initialize the properties
+     * @return properties loaded in it
+     */
+    public Properties initProperties(){
+        FileInputStream fis = null;
+        prop = new Properties();
+       String envName= System.getProperty("env");
+
+        try {
+            if (envName == null) {
+                System.out.println("evn is null hence running testcases on qa");
+                fis = new FileInputStream("./src/test/resources/Config/qa.config.properties");
+            } else {
+
+                switch (envName.toLowerCase().trim()) {
+
+                    case "qa":
+                        System.out.println("running testcases on environment "+envName);
+                        fis = new FileInputStream("./src/test/resources/Config/qa.config.properties");
+                        break;
+                    case "dev":
+                        System.out.println("running testcases on environment "+envName);
+                        fis = new FileInputStream("./src/test/resources/Config/dev.config.properties");
+                        break;
+                    case "stage":
+                        System.out.println("running testcases on environment "+envName);
+                        fis = new FileInputStream("./src/test/resources/Config/stage.config.properties");
+                        break;
+                    case "uat":
+                        System.out.println("running testcases on environment "+envName);
+                        fis = new FileInputStream("./src/test/resources/Config/uat.config.properties");
+                        break;
+                    case "prod":
+                        System.out.println("running testcases on environment "+envName);
+                        fis = new FileInputStream("./src/test/resources/Config/Config.properties");
+                        break;
+                    default:
+                        throw new FrameworkException("====INVALID ENV NAME=====" + envName);
+
+                }
+            }
+            }catch(FileNotFoundException e){
+                e.printStackTrace();
+            }
+
+        try{
+            prop.load(fis);
+            Enumeration<Object> keys = prop.keys();
+            while(keys.hasMoreElements()){
+                System.out.println(keys.nextElement());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    return prop;
+    }
+
+}
