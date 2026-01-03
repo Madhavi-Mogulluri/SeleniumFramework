@@ -2,12 +2,15 @@ package com.qa.factory;
 
 import com.qa.exceptions.BrowserException;
 import com.qa.exceptions.FrameworkException;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.safari.SafariDriver;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,6 +23,7 @@ public class DriverFactory {
     Properties prop;
     OptionsManager optionsManager;
     public static String highlight;
+    public static ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
 
     public WebDriver initializeDriver(Properties prop){
 
@@ -30,34 +34,39 @@ public class DriverFactory {
         switch (browserName.trim().toLowerCase()){
 
             case "chrome" :
-                driver = new ChromeDriver(optionsManager.chromeOptions());
+                tlDriver.set(new ChromeDriver(optionsManager.chromeOptions()));
                 break;
             case "edge" :
-                driver = new EdgeDriver(optionsManager.edgeOptions());
+                tlDriver.set(new EdgeDriver(optionsManager.edgeOptions()));
                 break;
             case "firefox" :
-                driver = new FirefoxDriver(optionsManager.firefoxOptions());
+                tlDriver.set(new FirefoxDriver(optionsManager.firefoxOptions()));
                 break;
             case "safari" :
-                driver = new SafariDriver();
+                tlDriver.set(new SafariDriver());
                 break;
             default :
             System.out.println("Please pass the right browser name " + browserName);
               throw new BrowserException("invalid browser" + browserName);
 
         }
-        driver.get(prop.getProperty("url"));
-        driver.manage().window().maximize();
-        driver.manage().deleteAllCookies();
-        return driver;
+        getDriver().get(prop.getProperty("url"));
+        getDriver().manage().window().maximize();
+        getDriver().manage().deleteAllCookies();
+        return getDriver();
 
+    }
+
+
+    public static WebDriver getDriver(){
+        return tlDriver.get();
     }
 
     /**
      * This method will initialize the properties
      * @return properties loaded in it
      */
-    public Properties initProperties(){
+    public Properties initProperties()  {
         FileInputStream fis = null;
         prop = new Properties();
        String envName= System.getProperty("env");
@@ -105,10 +114,33 @@ public class DriverFactory {
             while(keys.hasMoreElements()){
                 System.out.println(keys.nextElement());
             }
+            fis.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     return prop;
+    }
+    
+    
+    
+    
+    
+    public static File takeScreenshotAsFile(){
+      File srcfile = ((TakesScreenshot) getDriver()).getScreenshotAs(OutputType.FILE);
+        return srcfile;
+    }
+
+    public static byte[] takeScreenshotAsByte(){
+        TakesScreenshot ts = (TakesScreenshot) tlDriver.get();
+        byte[] f = ts.getScreenshotAs(OutputType.BYTES);
+        return f;
+    }
+
+    public static String takeScreenshotAsBase64(){
+        TakesScreenshot ts = (TakesScreenshot) tlDriver.get();
+        String image  = ts.getScreenshotAs(OutputType.BASE64);
+        return image;
     }
 
 }
