@@ -8,17 +8,17 @@ import com.qa.openCartPages.ProductInfoPage;
 import com.qa.openCartPages.ProductResultsPage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.NoOpLog;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
-
-import java.io.File;
 import java.util.Properties;
 
 @Listeners(ChainTestListener.class)
 public class BaseTest {
 
-    Log log = new NoOpLog();
+    public static Logger log = LogManager.getLogger(DriverFactory.class);
 
     WebDriver driver;
     DriverFactory df;
@@ -43,15 +43,20 @@ public class BaseTest {
 
     @AfterMethod
     public void attachScreeshot(ITestResult result){
-        if(result.isSuccess()){
+        if(!result.isSuccess()){
           ChainTestListener.embed(DriverFactory.takeScreenshotAsBase64(),"image/png");
-
+            log.info("screenshot is attached");
         }
-//        ChainTestListener.embed(DriverFactory.takeScreenshotAsBase64(), "image/png");
+//        else{
+//            ChainTestListener.embed(DriverFactory.takeScreenshotAsBase64(), "image/png");
+//            log.info("screenshot is attached");
+//        }
+
     }
     @AfterTest
     public void teardown(){
         driver.quit();
+        log.info("driver is closed");
     }
 
 

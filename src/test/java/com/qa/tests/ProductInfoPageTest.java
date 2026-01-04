@@ -2,6 +2,9 @@ package com.qa.tests;
 
 import com.qa.base.BaseTest;
 import com.qa.utils.CsvUtil;
+import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -9,7 +12,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
 import java.util.Map;
-
+@Owner("Madhavi Mogulluri")
 public class ProductInfoPageTest extends BaseTest {
 
     @BeforeClass
@@ -74,7 +77,7 @@ public class ProductInfoPageTest extends BaseTest {
         Assert.assertEquals(String.valueOf(productImagesCount),imagesCount);
     }
 
-
+    @Severity(SeverityLevel.BLOCKER)
     @Test
     public void getallTheProductInfoTest(){
        productResultspage=  accountPage.searchProduct("iMac");

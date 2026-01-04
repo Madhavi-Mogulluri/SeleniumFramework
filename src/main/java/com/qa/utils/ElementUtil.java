@@ -2,6 +2,9 @@ package com.qa.utils;
 
 import com.qa.exceptions.BrowserException;
 import com.qa.factory.DriverFactory;
+import io.qameta.allure.Step;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.Nullable;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
@@ -30,6 +33,9 @@ public class ElementUtil {
             this.actions = new Actions(driver);
             jsutil = new JavaScriptUtil(driver);
         }
+
+    public static Logger log = LogManager.getLogger(ElementUtil.class);
+
 
         //************ BROWSER UTILS ***********
     /**
@@ -68,7 +74,7 @@ public class ElementUtil {
      */
     public String  getCurrentUrl(){
         String url =  driver.getCurrentUrl();
-        System.out.println(url);
+        log.info(url);
         return url;
     }
 
@@ -78,7 +84,7 @@ public class ElementUtil {
      */
     public String getTitle(){
         String title = driver.getTitle();
-        System.out.println(title);
+        log.info(title);
         return title;
     }
 
@@ -88,7 +94,7 @@ public class ElementUtil {
      */
     private void lengthCheck(String value){
         if(value.length() ==0){
-            System.out.println("url should not be blank" + value);
+            log.info("url should not be blank" + value);
             throw new BrowserException("url is blank");
         }
     }
@@ -99,7 +105,7 @@ public class ElementUtil {
 
     private void nullCheck(String value){
         if (value == null){
-            System.out.println("url should not be null" + value);
+            log.info("url should not be null" + value);
             throw new NullPointerException();
         }
     }
@@ -168,7 +174,7 @@ public class ElementUtil {
          */
         public int getelementsCount(By locator) {
             int totallinks = getListOfWebElements(locator).size();
-            System.out.println("total count of links on the page : " + totallinks);
+            log.info("total count of links on the page : " + totallinks);
             return totallinks;
         }
 
@@ -215,6 +221,7 @@ public class ElementUtil {
          *
          * @param locator
          */
+        @Step("clicking on the element : {0}")
         public void click(By locator) {
             getElement(locator).click();
         }
@@ -225,9 +232,10 @@ public class ElementUtil {
          * @param locator
          * @return text of the given WebElement
          */
+        @Step("getting on the element : {0}")
         public String getText(By locator) {
             String text = getElement(locator).getText();
-            System.out.println("the text is " + text);
+            log.info("the text is " + text);
             return text;
         }
 
@@ -241,7 +249,7 @@ public class ElementUtil {
         public String getAttribute(By locator, String attributeName) {
             nullCheck(attributeName);
             String attributeValue = driver.findElement(locator).getDomAttribute(attributeName);
-            System.out.println(attributeValue);
+            log.info(attributeValue);
             return attributeValue;
         }
 
@@ -252,10 +260,11 @@ public class ElementUtil {
          * @param attributeProperty
          * @return
          */
+        @Step("finding the element using : {0}")
         public String getAttributeProperty(By locator, String attributeProperty) {
             nullCheck(attributeProperty);
             String attributepropValue = driver.findElement(locator).getDomProperty(attributeProperty);
-            System.out.println(attributepropValue);
+            log.info(attributepropValue);
             return attributepropValue;
         }
 
@@ -266,7 +275,7 @@ public class ElementUtil {
             try {
                 return getElement(locator).isDisplayed();
             } catch (NoSuchElementException e) {
-                System.out.println("elemenet is not displyaed on page" + locator);
+                log.info("elemenet is not displyaed on page" + locator);
                 return false;
             }
         }
@@ -281,7 +290,7 @@ public class ElementUtil {
             try {
                 return getElement(locator).isEnabled();
             } catch (NoSuchElementException e) {
-                System.out.println("elemenet is not displyaed on page" + locator);
+                log.info("elemenet is not displyaed on page" + locator);
                 return false;
             }
         }
@@ -311,7 +320,7 @@ public class ElementUtil {
                 select.selectByValue(value);
                 return true;
             } catch (NullPointerException e) {
-                System.out.println("Element is not present in the DOM " + value);
+                log.info("Element is not present in the DOM " + value);
                 return false;
             }
 
@@ -332,7 +341,7 @@ public class ElementUtil {
                 select.selectByIndex(index);
                 return true;
             } catch (NullPointerException e) {
-                System.out.println("Element is not present in the DOM " + index);
+                log.info("Element is not present in the DOM " + index);
                 return false;
             }
 
@@ -345,6 +354,7 @@ public class ElementUtil {
          * @param text
          * @return
          */
+        @Step("finding the element using : {0}")
         public boolean selectDropdownByVisibleText(By locator, String text) {
             Select select = new Select(getElement(locator));
 
@@ -352,7 +362,7 @@ public class ElementUtil {
                 select.selectByVisibleText(text);
                 return true;
             } catch (NullPointerException e) {
-                System.out.println("Element is not present in the DOM " + text);
+                log.info("Element is not present in the DOM " + text);
                 return false;
             }
 
@@ -437,7 +447,7 @@ public class ElementUtil {
             boolean allfound = allFoundValues.containsAll(expectedValuesToselect);
             if (allfound == false) {
                 expectedValuesToselect.removeAll(allFoundValues);
-                System.out.println("values missing " + expectedValuesToselect);
+                log.info("values missing " + expectedValuesToselect);
             }
 
 
@@ -533,6 +543,7 @@ public class ElementUtil {
          * @param timeout
          * @return
          */
+        @Step("finding the element using : {0}")
         public WebElement waitforElementVisibility(By locator, int timeout) {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeout));
             try{
@@ -559,7 +570,7 @@ public class ElementUtil {
             try{
                 return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
             }catch (Exception e) {
-                System.out.println(locator +"is not availble");
+                log.info(locator +"is not availble");
                 return Collections.EMPTY_LIST;
             }
 
@@ -577,7 +588,7 @@ public class ElementUtil {
             try{
                 return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
             } catch (Exception e) {
-                System.out.println(locator +"is not availble ");
+                log.info(locator +"is not availble ");
                 return Collections.EMPTY_LIST;
             }
         }
@@ -588,6 +599,7 @@ public class ElementUtil {
          * @param locator
          * @param timeout
          */
+        @Step("finding the element using : {0}")
         public void clickWhenReady(By locator, int timeout) {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeout));
             wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
@@ -599,8 +611,10 @@ public class ElementUtil {
          * @param locator
          * @param timeout
          */
+        @Step("finding the element using : {0}")
         public void clickwithWait(By locator, int timeout) {
             waitforElementVisibility(locator, timeout).click();
+            log.info("clicked on the element" +locator);
         }
 
         /**
@@ -610,9 +624,12 @@ public class ElementUtil {
          * @param timeout
          * @param value
          */
+        @Step("Entering the {2} in to the element: {0}")
         public void sendkeysWithWait(By locator, int timeout, CharSequence... value) {
             waitforElementVisibility(locator, timeout).clear();
+            log.info("found the element with the given locator" + locator);
             waitforElementVisibility(locator, timeout).sendKeys(value);
+            log.info("entered the given value in the " + locator);
         }
 
         public @Nullable Alert waitForAlert(int timeout) {
@@ -721,7 +738,7 @@ public class ElementUtil {
             try {
                 return wait.until(ExpectedConditions.numberOfWindowsToBe(noOfWindows));
             } catch (Exception e) {
-                System.out.println("Expected windows to be " + noOfWindows);
+                log.info("Expected windows to be " + noOfWindows);
                 return false;
             }
         }
