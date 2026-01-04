@@ -1,12 +1,13 @@
 package com.qa.tests;
 
 import com.qa.base.BaseTest;
+import io.qameta.allure.Owner;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import static  com.qa.appConstants.AppConstants.*;
 
-
+@Owner("Madhavi Mogulluri")
 public class AccountsPageTest extends BaseTest {
 
     @BeforeClass

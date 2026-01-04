@@ -2,6 +2,8 @@ package com.qa.factory;
 
 import com.qa.exceptions.BrowserException;
 import com.qa.exceptions.FrameworkException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -9,7 +11,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.safari.SafariDriver;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,6 +25,8 @@ public class DriverFactory {
     OptionsManager optionsManager;
     public static String highlight;
     public static ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
+
+  public static Logger log = LogManager.getLogger(DriverFactory.class);
 
     public WebDriver initializeDriver(Properties prop){
 
@@ -46,7 +49,7 @@ public class DriverFactory {
                 tlDriver.set(new SafariDriver());
                 break;
             default :
-            System.out.println("Please pass the right browser name " + browserName);
+            log.warn("Please pass the right browser name " + browserName);
               throw new BrowserException("invalid browser" + browserName);
 
         }
@@ -80,26 +83,27 @@ public class DriverFactory {
                 switch (envName.toLowerCase().trim()) {
 
                     case "qa":
-                        System.out.println("running testcases on environment "+envName);
+                        log.info("running testcases on environment "+envName);
                         fis = new FileInputStream("./src/test/resources/Config/qa.config.properties");
                         break;
                     case "dev":
-                        System.out.println("running testcases on environment "+envName);
+                        log.info("running testcases on environment "+envName);
                         fis = new FileInputStream("./src/test/resources/Config/dev.config.properties");
                         break;
                     case "stage":
-                        System.out.println("running testcases on environment "+envName);
+                        log.info("running testcases on environment "+envName);
                         fis = new FileInputStream("./src/test/resources/Config/stage.config.properties");
                         break;
                     case "uat":
-                        System.out.println("running testcases on environment "+envName);
+                        log.info("running testcases on environment "+envName);
                         fis = new FileInputStream("./src/test/resources/Config/uat.config.properties");
                         break;
                     case "prod":
-                        System.out.println("running testcases on environment "+envName);
+                        log.info("running testcases on environment "+envName);
                         fis = new FileInputStream("./src/test/resources/Config/Config.properties");
                         break;
                     default:
+                        log.warn("INVALID ENV NAME");
                         throw new FrameworkException("====INVALID ENV NAME=====" + envName);
 
                 }
@@ -110,10 +114,7 @@ public class DriverFactory {
 
         try{
             prop.load(fis);
-            Enumeration<Object> keys = prop.keys();
-            while(keys.hasMoreElements()){
-                System.out.println(keys.nextElement());
-            }
+            log.info(prop);
             fis.close();
 
         } catch (IOException e) {
