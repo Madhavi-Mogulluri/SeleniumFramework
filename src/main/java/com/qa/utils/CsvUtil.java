@@ -8,7 +8,7 @@ import java.util.List;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 
-    public class CsvUtil {
+    public final class  CsvUtil {
 
         private static final String CSV_PATH = "./src/test/resources/TestData/";
 
