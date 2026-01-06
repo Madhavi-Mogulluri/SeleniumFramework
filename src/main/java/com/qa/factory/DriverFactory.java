@@ -10,11 +10,14 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -29,24 +32,40 @@ public class DriverFactory {
   public static Logger log = LogManager.getLogger(DriverFactory.class);
 
     public WebDriver initializeDriver(Properties prop){
-
         String browserName = prop.getProperty("browser");
         System.out.println("Browser name " + browserName);
         optionsManager = new OptionsManager(prop);
         highlight = prop.getProperty("highlight");
         switch (browserName.trim().toLowerCase()){
-
             case "chrome" :
-                tlDriver.set(new ChromeDriver(optionsManager.chromeOptions()));
+                if(Boolean.parseBoolean(prop.getProperty("remote"))){
+                    initializeremoteWebdriver("chrome");
+                }else {
+                    tlDriver.set(new ChromeDriver(optionsManager.chromeOptions()));
+                }
                 break;
             case "edge" :
-                tlDriver.set(new EdgeDriver(optionsManager.edgeOptions()));
+                if(Boolean.parseBoolean(prop.getProperty("remote"))){
+                    initializeremoteWebdriver("edge");
+                }else {
+                    tlDriver.set(new EdgeDriver(optionsManager.edgeOptions()));
+                }
                 break;
             case "firefox" :
-                tlDriver.set(new FirefoxDriver(optionsManager.firefoxOptions()));
+                if(Boolean.parseBoolean(prop.getProperty("remote"))){
+                    initializeremoteWebdriver("firefox");
+                }else {
+                    tlDriver.set(new FirefoxDriver(optionsManager.firefoxOptions()));
+                }
+
                 break;
             case "safari" :
-                tlDriver.set(new SafariDriver());
+                if(Boolean.parseBoolean(prop.getProperty("remote"))){
+                    log.warn(browserName +"does not supported in remote execution, so run it in local ");
+                    throw new BrowserException("invalid browser for remote execution: " + browserName);
+                }else {
+                    tlDriver.set(new SafariDriver());
+                }
                 break;
             default :
             log.warn("Please pass the right browser name " + browserName);
@@ -58,6 +77,36 @@ public class DriverFactory {
         getDriver().manage().deleteAllCookies();
         return getDriver();
 
+    }
+
+    private void initializeremoteWebdriver(String browserName){
+        switch (browserName.trim().toLowerCase()){
+            case "chrome":
+                try{
+                    tlDriver.set(new RemoteWebDriver(new URL(prop.getProperty("huburl")),optionsManager.chromeOptions()));
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "edge":
+                try{
+                tlDriver.set(new RemoteWebDriver(new URL(prop.getProperty("huburl")),(optionsManager.edgeOptions())));
+            }catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "firefox":
+                try{
+                    tlDriver.set(new RemoteWebDriver(new URL(prop.getProperty("huburl")),(optionsManager.firefoxOptions())));
+                }catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            default:
+                log.warn(browserName +"does not supported in remote execution");
+                throw new BrowserException("invalid browser" + browserName);
+
+        }
     }
 
 

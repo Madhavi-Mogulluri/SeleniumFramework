@@ -16,7 +16,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.*;
 
-public class ElementUtil {
+public final class ElementUtil {
 
 
         private WebDriver driver;
