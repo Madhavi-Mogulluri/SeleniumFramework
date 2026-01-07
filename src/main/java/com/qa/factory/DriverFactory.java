@@ -125,7 +125,7 @@ public class DriverFactory {
 
         try {
             if (envName == null) {
-                System.out.println("evn is null hence running testcases on qa");
+                log.warn("evn is null hence running testcases on qa");
                 fis = new FileInputStream("./src/test/resources/Config/qa.config.properties");
             } else {
 
