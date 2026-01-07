@@ -1,116 +1,109 @@
-pipeline
-{
+pipeline {
     agent any
 
-    tools{
-        maven 'maven'
-        }
+    tools {
+        maven 'Maven-3.9.6'
+    }
 
-    stages
-    {
-        stage('Build')
-        {
-            steps
-            {
-                 git 'https://github.com/jglick/simple-maven-project-with-tests.git'
-                 sh "mvn -Dmaven.test.failure.ignore=true clean package"
+    stages {
+
+        stage('Build') {
+            steps {
+                dir('api-build') {
+                    git 'https://github.com/jglick/simple-maven-project-with-tests.git'
+                    sh 'mvn -Dmaven.test.failure.ignore=true clean package'
+                }
             }
-            post
-            {
-                success
-                {
-                    junit '**/target/surefire-reports/TEST-*.xml'
-                    archiveArtifacts 'target/*.jar'
+            post {
+                success {
+                    junit 'api-build/**/target/surefire-reports/TEST-*.xml'
+                    archiveArtifacts artifacts: 'api-build/target/*.jar', fingerprint: true
                 }
             }
         }
 
-
-
-        stage("Deploy to QA"){
-            steps{
-                echo("deploy to qa done")
+        stage('Deploy to QA') {
+            steps {
+                echo 'Deploy to QA done'
             }
         }
-
-
-
 
         stage('Regression Automation Tests') {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    git 'https://github.com/Madhavi-Mogulluri/SeleniumFramework.git'
-                    sh "mvn clean test -Dsurefire.suiteXmlFiles=src/test/resources/Testrunners/testng_regression.xml -Denv=qa"
-
+                dir('regression-tests') {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        git 'https://github.com/Madhavi-Mogulluri/SeleniumFramework.git'
+                        sh '''
+                           mvn clean test \
+                           -Dsurefire.suiteXmlFiles=src/test/resources/Testrunners/testng_regression.xml \
+                           -Denv=qa
+                        '''
+                    }
                 }
             }
         }
-
 
         stage('Publish Allure Reports') {
-           steps {
-                script {
-                    allure([
-                        includeProperties: false,
-                        jdk: '',
-                        properties: [],
-                        reportBuildPolicy: 'ALWAYS',
-                        results: [[path: '/allure-results']]
-                    ])
-                }
+            steps {
+                allure([
+                    includeProperties: false,
+                    reportBuildPolicy: 'ALWAYS',
+                    results: [[path: 'regression-tests/target/allure-results']]
+                ])
             }
         }
 
-
-        stage('Publish ChainTest Report'){
-            steps{
-                     publishHTML([allowMissing: false,
-                                  alwaysLinkToLastBuild: false,
-                                  keepAll: true,
-                                  reportDir: 'target/chaintest',
-                                  reportFiles: 'Index.html',
-                                  reportName: 'HTML Regression ChainTest Report',
-                                  reportTitles: ''])
+        stage('Publish ChainTest Report') {
+            steps {
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'regression-tests/target/chaintest',
+                    reportFiles: 'Index.html',
+                    reportName: 'HTML Regression ChainTest Report'
+                ])
             }
         }
 
-        stage("Deploy to Stage"){
-            steps{
-                echo("deploy to Stage")
+        stage('Deploy to Stage') {
+            steps {
+                echo 'Deploy to Stage'
             }
         }
 
         stage('Sanity Automation Test') {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    git 'https://github.com/Madhavi-Mogulluri/SeleniumFramework.git'
-                    sh "mvn clean test -Dsurefire.suiteXmlFiles=src/test/resources/Testrunners/testng_sanity.xml -Denv=stage"
-
+                dir('sanity-tests') {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        git 'https://github.com/Madhavi-Mogulluri/SeleniumFramework.git'
+                        sh '''
+                           mvn clean test \
+                           -Dsurefire.suiteXmlFiles=src/test/resources/Testrunners/testng_sanity.xml \
+                           -Denv=stage
+                        '''
+                    }
                 }
             }
         }
 
-
-
-        stage('Publish sanity ChainTest Report'){
-            steps{
-                     publishHTML([allowMissing: false,
-                                  alwaysLinkToLastBuild: false,
-                                  keepAll: true,
-                                  reportDir: 'target/chaintest',
-                                  reportFiles: 'Index.html',
-                                  reportName: 'HTML Sanity ChainTest Report',
-                                  reportTitles: ''])
+        stage('Publish Sanity ChainTest Report') {
+            steps {
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'sanity-tests/target/chaintest',
+                    reportFiles: 'Index.html',
+                    reportName: 'HTML Sanity ChainTest Report'
+                ])
             }
         }
 
-
-        stage("Deploy to PROD"){
-            steps{
-                echo("deploy to PROD")
+        stage('Deploy to PROD') {
+            steps {
+                echo 'Deploy to PROD'
             }
         }
-
-
     }
 }

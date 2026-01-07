@@ -6,8 +6,6 @@ import com.qa.openCartPages.AccountsPage;
 import com.qa.openCartPages.LoginPage;
 import com.qa.openCartPages.ProductInfoPage;
 import com.qa.openCartPages.ProductResultsPage;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.NoOpLog;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
