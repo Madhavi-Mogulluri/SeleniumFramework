@@ -40,7 +40,7 @@ pipeline
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     git 'https://github.com/Madhavi-Mogulluri/SeleniumFramework.git'
-                    sh "mvn clean test -DsuiteXmlFiles=src/test/resources/Testrunners/testng_regression.xml -Denv=qa"
+                    sh "mvn clean test -DsuiteXmlFile=src/test/resources/Testrunners/testng_regression.xml -Denv=qa"
 
                 }
             }
@@ -84,7 +84,7 @@ pipeline
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     git 'https://github.com/Madhavi-Mogulluri/SeleniumFramework.git'
-                    sh "mvn clean test -DsuiteXmlFiles=src/test/resources/Testrunners/testng_sanity.xml -Denv=stage"
+                    sh "mvn clean test -DsuiteXmlFile=src/test/resources/Testrunners/testng_sanity.xml -Denv=stage"
 
                 }
             }
