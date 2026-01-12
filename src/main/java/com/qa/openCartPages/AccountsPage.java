@@ -5,7 +5,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.qa.appConstants.AppConstants.*;
@@ -40,15 +39,12 @@ public class AccountsPage {
         return elementUtil.getCurrentUrl();
     }
 
-    public List<String> getAllHeaders() {
+    public void getAllHeaders() {
         List<WebElement> textofWebelements = elementUtil.getListOfWebElements(headers);
-        List<String> allHeaders = new ArrayList<>();
-
         for (WebElement e : textofWebelements) {
             String text = e.getText();
-            allHeaders.add(text);
+            System.out.println(text);
         }
-        return allHeaders;
     }
 
     public ProductResultsPage searchProduct(String productName){

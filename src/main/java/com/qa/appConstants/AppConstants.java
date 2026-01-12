@@ -13,5 +13,4 @@ public class AppConstants {
     public static final String HOMEPAGE_PAGE_TITLE = "My Account";
     public static final String LOGINPAGE_FRACTION_URL = "route=account/login";
     public static final String HOMEPAGE_FRACTION_URL = "route=account/account";
-    public static final String USER_REGISTER_SUCCESS_MESSG = "Your Account Has Been Created!";
 }

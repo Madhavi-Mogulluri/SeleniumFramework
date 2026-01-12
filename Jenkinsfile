@@ -10,7 +10,7 @@ pipeline
     {
         stage('Build')
         {
-            parallel
+            steps
             {
                  git 'https://github.com/jglick/simple-maven-project-with-tests.git'
                  sh "mvn -Dmaven.test.failure.ignore=true clean package"
@@ -28,7 +28,7 @@ pipeline
 
 
         stage("Deploy to QA"){
-            parallel{
+            steps{
                 echo("deploy to qa done")
             }
         }
@@ -37,7 +37,7 @@ pipeline
 
 
         stage('Regression Automation Tests') {
-            parallel {
+            steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     git 'https://github.com/Madhavi-Mogulluri/SeleniumFramework.git'
                     sh "mvn clean test -DsuiteXmlFile=src/test/resources/Testrunners/testng_regression.xml -Denv=qa"
@@ -48,7 +48,7 @@ pipeline
 
 
         stage('Publish Allure Reports') {
-           parallel {
+           steps {
                 script {
                     allure([
                         includeProperties: false,
@@ -63,7 +63,7 @@ pipeline
 
 
         stage('Publish ChainTest Report'){
-            parallel{
+            steps{
                      publishHTML([allowMissing: false,
                                   alwaysLinkToLastBuild: false,
                                   keepAll: true,
@@ -75,13 +75,13 @@ pipeline
         }
 
         stage("Deploy to Stage"){
-            parallel{
+            steps{
                 echo("deploy to Stage")
             }
         }
 
         stage('Sanity Automation Test') {
-            parallel {
+            steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     git 'https://github.com/Madhavi-Mogulluri/SeleniumFramework.git'
                     sh "mvn clean test -DsuiteXmlFile=src/test/resources/Testrunners/testng_sanity.xml -Denv=stage"
@@ -93,7 +93,7 @@ pipeline
 
 
         stage('Publish sanity ChainTest Report'){
-            parallel{
+            steps{
                      publishHTML([allowMissing: false,
                                   alwaysLinkToLastBuild: false,
                                   keepAll: true,
@@ -106,7 +106,7 @@ pipeline
 
 
         stage("Deploy to PROD"){
-            parallel{
+            steps{
                 echo("deploy to PROD")
             }
         }

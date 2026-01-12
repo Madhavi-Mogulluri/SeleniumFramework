@@ -14,7 +14,6 @@ public class LoginPage {
     private  By password= By.name("password");
     private  By loginBtn= By.cssSelector("input[value='Login']");
     private  By forgotPasswordLink= By.linkText("Forgotten Password");
-    private By registerLink = By.linkText("Register");
 
 
 
@@ -46,11 +45,6 @@ public class LoginPage {
         elementUtil.sendKeys(password,pwd);
         elementUtil.click(loginBtn);
        return new AccountsPage(driver);
-    }
-
-    public RegisterPage navigateToRegisterPage() {
-        elementUtil.clickwithWait(registerLink,3000);
-        return new RegisterPage(driver);
     }
 
 
