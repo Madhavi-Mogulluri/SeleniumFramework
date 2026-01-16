@@ -47,5 +47,10 @@ public class LoginPage {
        return new AccountsPage(driver);
     }
 
+    public FileDownloadPage gotoanotherURL(){
+        driver.get("https://the-internet.herokuapp.com/download");
+        return new FileDownloadPage(driver);
+    }
+
 
 }

@@ -28,7 +28,7 @@ public class BaseTest {
 
     @Parameters({"browser"})
     @BeforeTest
-    public void setup(String browserName){
+    public void setup(@Optional String browserName){
         df = new DriverFactory();
         prop =df.initProperties();
         if(browserName!= null){
